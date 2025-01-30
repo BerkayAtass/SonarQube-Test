@@ -25,7 +25,7 @@ jobs:
           tools: composer, phpstan
 
       - name: Install Dependencies
-        run: composer install --no-progress --no-suggest
+        run: composer install --working-dir=MyWebApp/composer.json
 
       - name: Run PHPStan
         run: vendor/bin/phpstan analyse src --level=max
