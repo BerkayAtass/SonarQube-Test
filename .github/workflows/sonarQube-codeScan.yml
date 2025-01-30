@@ -1,4 +1,4 @@
-name: CI/CD workflow for PHP Code Analysis
+name: PHP Code Analysis & SonarQube Scan
 
 on:
   push:
@@ -7,22 +7,28 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
+  code-analysis:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Code
+      - name: Checkout repository
         uses: actions/checkout@v3
 
       - name: Set up PHP
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.1'
+          tools: composer, phpstan
 
-      - name: Install Dependencies
-        run: composer install --no-progress --prefer-dist --working-dir=MyWebApp
+      - name: Check PHP version
+        run: php -v
 
-      - name: Run PHPStan Static Analysis
-        run: vendor/bin/phpstan analyse MyWebApp --level=5
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-progress
+        working-directory: MyWebApp  # Eğer composer.json burada ise!
+
+      - name: Run PHPStan Analysis
+        run: vendor/bin/phpstan analyse src --level=max
+        working-directory: MyWebApp
 
       - name: SonarQube Scan
         uses: sonarsource/sonarqube-scan-action@master
@@ -30,7 +36,7 @@ jobs:
           projectBaseDir: MyWebApp
           args: >
             -Dsonar.organization=my-org
-            -Dsonar.projectKey=my-php-project
+            -Dsonar.projectKey=my-PHP-web-app
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
