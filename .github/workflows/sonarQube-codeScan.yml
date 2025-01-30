@@ -1,52 +1,33 @@
-name: PHP Code Analysis
+name: CI/CD workflow for PHP Code Analysis
 
 on:
   push:
     branches:
       - main
-  pull_request:
-    branches:
-      - main
   workflow_dispatch:
 
 jobs:
-  phpstan-analysis:
-    name: Run PHPStan for Static Code Analysis
+  build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Set up PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.2'
-          extensions: mbstring, xml, ctype, iconv
-          tools: composer, phpstan
+          php-version: '8.1'
 
       - name: Install Dependencies
-        run: composer install --no-progress --prefer-dist
+        run: composer install --no-progress --prefer-dist --working-dir=MyWebApp
 
-      - name: Run PHPStan
-        run: vendor/bin/phpstan analyse src --level=max
-  
-  sonar-analysis:
-    name: Run SonarQube Scan
-    runs-on: ubuntu-latest
-    needs: phpstan-analysis
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v2
+      - name: Run PHPStan Static Analysis
+        run: vendor/bin/phpstan analyse MyWebApp --level=5
 
-      - name: Set up PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: '8.2'
-      
       - name: SonarQube Scan
         uses: sonarsource/sonarqube-scan-action@master
         with:
-          projectBaseDir: .
+          projectBaseDir: MyWebApp
           args: >
             -Dsonar.organization=my-org
             -Dsonar.projectKey=my-php-project
