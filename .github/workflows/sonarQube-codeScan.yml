@@ -27,7 +27,7 @@ jobs:
         working-directory: MyWebApp  # Eğer composer.json burada ise!
 
       - name: Run PHPStan Analysis
-        run: vendor/bin/phpstan analyse src --level=max
+        run: vendor/bin/phpstan analyse app --level=max
         working-directory: MyWebApp
 
       - name: SonarQube Scan
